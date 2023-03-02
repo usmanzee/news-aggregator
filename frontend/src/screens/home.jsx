@@ -11,9 +11,9 @@ import {
   Form,
   Select,
   Tag,
+  Typography,
 } from "antd";
 import {
-  AudioFilled,
   SearchOutlined,
   FilterOutlined,
   ClockCircleOutlined,
@@ -31,6 +31,7 @@ import moment from "moment";
 
 const { Search } = Input;
 const { Meta } = Card;
+const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 function Home(props) {
@@ -255,7 +256,17 @@ function Home(props) {
           {newsFeedLoading ? (
             [1, 2, 3, 4, 5, 6, 7].map(() => renderLoadingCard())
           ) : (
-            <>{newsFeed.map((news) => renderNewsCard(news))}</>
+            <>
+              {newsFeed.length ? (
+                newsFeed.map((news) => renderNewsCard(news))
+              ) : (
+                <Row>
+                  <Col span={24} className="no-record">
+                    <Title>No Result Found!</Title>
+                  </Col>
+                </Row>
+              )}
+            </>
           )}
         </Row>
       </section>

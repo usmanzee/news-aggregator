@@ -157,6 +157,11 @@ span.badge {
 .ant-card-loading {
   width: 100% !important;
 }
+.no-record {
+  padding: 30px 0;
+  align-items: center;
+  justify-content: center;
+}
 @media (max-width: 1600px) {
   .content {
     padding: 0 200px;
