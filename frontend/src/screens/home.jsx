@@ -252,7 +252,7 @@ function Home(props) {
         </Row>
       </section>
       <section>
-        <Row gutter={16}>
+        <Row gutter={16} style={{ marginBottom: "24px" }}>
           {newsFeedLoading ? (
             [1, 2, 3, 4, 5, 6, 7].map(() => renderLoadingCard())
           ) : (
@@ -260,8 +260,8 @@ function Home(props) {
               {newsFeed.length ? (
                 newsFeed.map((news) => renderNewsCard(news))
               ) : (
-                <Row>
-                  <Col span={24} className="no-record">
+                <Row className="no-record">
+                  <Col span={24}>
                     <Title>No Result Found!</Title>
                   </Col>
                 </Row>

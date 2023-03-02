@@ -26,7 +26,7 @@ const sourcesState = {
 };
 
 const newsFeedState = {
-  loading: false,
+  loading: true,
   list: [],
 };
 

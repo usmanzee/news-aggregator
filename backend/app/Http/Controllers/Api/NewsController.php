@@ -26,55 +26,73 @@ class NewsController extends Controller
         ]);
     }
     public function getNewsFeed(Request $request) {
-        $url = "/top-headlines";
-        $guardianUrl = "";
-        $searchQuery =  $request->searchQuery;
-        $fromDate =  $request->fromDate;
-        $toDate =  $request->toDate;
-        $category =  $request->category;
-        $sources =  $request->sources;
 
-        if(!$searchQuery && !$fromDate && !$toDate && !$category && !$sources) {
-            $url .= '?country=us';
-        } elseif (!$searchQuery && !$fromDate && !$toDate && $category && !$sources) {
-            $url .= '?category='.$category;
-        }
-        if($searchQuery) {
-            $url = "/everything?q=".$searchQuery;
-            if ($fromDate && $toDate) {
-                $url .= '&from='.$fromDate.'&to='.$toDate;
+        try {
+            $url = "/top-headlines";
+            $guardianUrl = "";
+            $searchQuery =  $request->searchQuery;
+            $fromDate =  $request->fromDate;
+            $toDate =  $request->toDate;
+            $category =  $request->category;
+            $sources =  $request->sources;
+    
+            if(!$searchQuery && !$fromDate && !$toDate && !$category && !$sources) {
+                $url .= '?country=us';
+            } elseif (!$searchQuery && !$fromDate && !$toDate && $category && !$sources) {
+                $url .= '?category='.$category;
             }
-            if ($sources) {
-                $url .= '&sources='.$sources;
+            if($searchQuery) {
+                $url = "/everything?q=".$searchQuery;
+                if ($fromDate && $toDate) {
+                    $url .= '&from='.$fromDate.'&to='.$toDate;
+                }
+                if ($sources) {
+                    $url .= '&sources='.$sources;
+                }
             }
-        }
-        if($sources && !$searchQuery) {
-            $url = "/everything?sources=".$sources;
-            if ($fromDate && $toDate) {
-                $url .= '&from='.$fromDate.'&to='.$toDate;
+            if($sources && !$searchQuery) {
+                $url = "/everything?sources=".$sources;
+                if ($fromDate && $toDate) {
+                    $url .= '&from='.$fromDate.'&to='.$toDate;
+                }
             }
+    
+            if($searchQuery) {
+                $guardianUrl .= '?q='.$searchQuery.'&api-key='.strval(config('services.guardianapi.key'));;
+            } else {
+                $guardianUrl .= '?api-key='.strval(config('services.guardianapi.key'));;
+            }
+            $url .= "&apiKey=".strval(config('services.newsapi.key'));
+    
+    
+            /**
+             * News org request
+             */
+            $data = $this->api->newsList($url);
+            $response = json_decode($data->getBody()->getContents());
+            /**
+             * Guardian request
+             */
+            //  $guardianData = $this->guardianApi->guardianNewsList($guardianUrl);
+            if($response->status === 'ok') {
+                $res = new NewsCollection($response->articles);
+                return response()->json($res);
+            } else {
+                return response()->json([
+                    'data' => [
+                        'message' => $response->message
+                    ]
+                ]);
+            }
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => [
+                    'message' => 'Server Error!'
+                ]
+                
+            ]);
         }
-
-        if($searchQuery) {
-            $guardianUrl .= '?q='.$searchQuery.'&api-key='.strval(config('services.guardianapi.key'));;
-        } else {
-            $guardianUrl .= '?api-key='.strval(config('services.guardianapi.key'));;
-        }
-        $url .= "&apiKey=".strval(config('services.newsapi.key'));
-
-        /**
-         * News org request
-         */
-        $data = $this->api->newsList($url);
-        $response = json_decode($data->getBody()->getContents());
-        $res = new NewsCollection($response->articles);
-
-        /**
-         * Guardian request
-         */
-
-        //  $guardianData = $this->guardianApi->guardianNewsList($guardianUrl);
-        //  dd($guardianData);
-        return response()->json($res);
+        
     }
 }
